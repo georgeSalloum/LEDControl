@@ -3,8 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+
 </head>
 <body>
+<script src="Lib/jquery-3.2.1.min.js"></script>
+<script src ="Lib/pubnub.min.js"></script>
+<script type="text/javascript">
+
+    
+    $(document).ready(function () {
+        $("#control-button").click(function () {
+            alert("clicked");
+        })
+    })
+
+</script>
+
 <H1>LED-Control</H1>
+<button id="control-button">Toggle light</button>
 </body>
 </html>
