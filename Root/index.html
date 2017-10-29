@@ -7,19 +7,71 @@
 </head>
 <body>
 <script src="Lib/jquery-3.2.1.min.js"></script>
-<script src ="Lib/pubnub.min.js"></script>
+<script src="Lib/pubnub.min.js"></script>
 <script type="text/javascript">
 
-    
+    var LED_STATUS = "ON";
+
+    //initiate pub-nub object
+    pubnub = new PubNub({
+        publishKey: 'pub-c-b5098184-8741-481d-918f-6e08c2116ce0',
+        subscribeKey: 'sub-c-b27bafae-b390-11e7-8f6d-3a18aff742a6',
+        ssl: true
+    });
+
+    pubnub.subscribe({
+        channels: ['LED_STATUS_CHANNEL', 'LED_COMMAND_CHANNEL', 'MESSAGE_CHANNEL']
+    });
+
+    //listen to any message published on the channel
+    pubnub.addListener({
+        message: function (message) {
+            console.log(message)
+            if (message.channel == "LED_STATUS_CHANNEL") {
+                LED_STATUS = message.message
+                $("#led-status").text("LED is " + LED_STATUS)
+            }
+        }
+    });
+
     $(document).ready(function () {
+        $("#send-button").click(function () {
+            var publishConfig = {
+                channel: "MESSAGE_CHANNEL",
+                message: ("#data-input").val()
+            };
+
+            pubnub.publish(publishConfig, function (status, response) {
+                console.log(status, response)
+            })
+        });
+
+
         $("#control-button").click(function () {
-            alert("clicked");
+            if(LED_STATUS == "ON")
+                NEXT_LED_STATUS = "OFF"
+            else
+                NEXT_LED_STATUS = "ON"
+            var publishConfig = {
+                channel: 'LED_COMMAND_CHANNEL',
+                message: NEXT_LED_STATUS
+            };
+
+            pubnub.publish(publishConfig, function (status, response) {
+                console.log(status, response)
+            })
         })
     })
 
 </script>
 
 <H1>LED-Control</H1>
-<button id="control-button">Toggle light</button>
+<button id="control-button">Toggle</button>
+<br><br>
+<p id="led-status">LED is ON</p>
+<br><br>
+<button id="send-button">Send Message</button>
+<br><br>
+<input id='data-input' type="text" name="Data" value="pubNub">
 </body>
 </html>
